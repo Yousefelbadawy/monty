@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define MAX_SIZE 100
 
@@ -28,25 +29,46 @@ int isFull(Stack *stack) {
 void push(Stack *stack, int value) {
     if (isFull(stack)) {
         printf("Stack is full. Cannot push.\n");
-        return;
+        exit(EXIT_FAILURE);
     }
     stack->data[++stack->top] = value;
+}
+
+// Function to print all values on the stack
+void pall(Stack *stack) {
+    if (isEmpty(stack)) {
+        return; // Stack is empty, nothing to print
+    }
+    
+    for (int i = stack->top; i >= 0; i--) {
+        printf("%d\n", stack->data[i]);
+    }
 }
 
 int main() {
     Stack myStack;
     initialize(&myStack);
-
-    push(&myStack, 10);
-    push(&myStack, 20);
-    push(&myStack, 30);
-
-    printf("Stack elements: ");
-    while (!isEmpty(&myStack)) {
-        printf("%d ", myStack.data[myStack.top]);
-        --myStack.top;
+    
+    char line[100]; // Assuming each line of input is at most 100 characters
+    
+    while (fgets(line, sizeof(line), stdin) != NULL) {
+        char opcode[10];
+        int value;
+        
+        if (sscanf(line, "%s %d", opcode, &value) == 2) {
+            if (strcmp(opcode, "push") == 0) {
+                push(&myStack, value);
+            } else {
+                printf("Invalid opcode: %s\n", opcode);
+                exit(EXIT_FAILURE);
+            }
+        } else if (strcmp(opcode, "pall") == 0) {
+            pall(&myStack);
+        } else {
+            printf("Invalid input format: %s", line);
+            exit(EXIT_FAILURE);
+        }
     }
-    printf("\n");
-
+    
     return 0;
 }
