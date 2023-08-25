@@ -1,74 +1,66 @@
+#ifndef MONTY_H
+#define MONTY_H
+
+#define _GNU_SOURCE
 #include <stdio.h>
-#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdarg.h>
 
-#define MAX_SIZE 100
 
-// Define the stack structure
-typedef struct {
-    int data[MAX_SIZE];
-    int top;
-} Stack;
+typedef struct stack_s
+{
+        int n;
+        struct stack_s *prev;
+        struct stack_s *next;
+} stack_t;
 
-// Function to initialize an empty stack
-void initialize(Stack *stack) {
-    stack->top = -1;
-}
 
-// Function to check if the stack is empty
-int isEmpty(Stack *stack) {
-    return stack->top == -1;
-}
+typedef struct instruction_s
+{
+        char *opcode;
+        void (*f)(stack_t **stack, unsigned int line_number);
+} instruction_t;
 
-// Function to check if the stack is full
-int isFull(Stack *stack) {
-    return stack->top == MAX_SIZE - 1;
-}
+extern stack_t *head;
+typedef void (*op_func)(stack_t **, unsigned int);
 
-// Function to push an element onto the stack
-void push(Stack *stack, int value) {
-    if (isFull(stack)) {
-        printf("Stack is full. Cannot push.\n");
-        exit(EXIT_FAILURE);
-    }
-    stack->data[++stack->top] = value;
-}
+void open_file(char *file_name);
+int parse_line(char *buffer, int line_number, int format);
+void read_file(FILE *);
+int len_chars(FILE *);
+void find_func(char *, char *, int, int);
 
-// Function to print all values on the stack
-void pall(Stack *stack) {
-    if (isEmpty(stack)) {
-        return; // Stack is empty, nothing to print
-    }
-    
-    for (int i = stack->top; i >= 0; i--) {
-        printf("%d\n", stack->data[i]);
-    }
-}
 
-int main() {
-    Stack myStack;
-    initialize(&myStack);
-    
-    char line[100]; // Assuming each line of input is at most 100 characters
-    
-    while (fgets(line, sizeof(line), stdin) != NULL) {
-        char opcode[10];
-        int value;
-        
-        if (sscanf(line, "%s %d", opcode, &value) == 2) {
-            if (strcmp(opcode, "push") == 0) {
-                push(&myStack, value);
-            } else {
-                printf("Invalid opcode: %s\n", opcode);
-                exit(EXIT_FAILURE);
-            }
-        } else if (strcmp(opcode, "pall") == 0) {
-            pall(&myStack);
-        } else {
-            printf("Invalid input format: %s", line);
-            exit(EXIT_FAILURE);
-        }
-    }
-    
-    return 0;
-}
+void print_char(stack_t **, unsigned int);
+void print_str(stack_t **, unsigned int);
+void rotl(stack_t **, unsigned int);
+
+void err(int error_code, ...);
+void more_err(int error_code, ...);
+void string_err(int error_code, ...);
+void rotr(stack_t **, unsigned int);
+
+stack_t *create_node(int n);
+void free_nodes(void);
+void print_stack(stack_t **, unsigned int);
+void add_to_stack(stack_t **, unsigned int);
+void add_to_queue(stack_t **, unsigned int);
+
+void call_fun(op_func, char *, char *, int, int);
+
+void print_top(stack_t **, unsigned int);
+void pop_top(stack_t **, unsigned int);
+void nop(stack_t **, unsigned int);
+void swap_nodes(stack_t **, unsigned int);
+
+void add_nodes(stack_t **, unsigned int);
+void sub_nodes(stack_t **, unsigned int);
+void div_nodes(stack_t **, unsigned int);
+void mul_nodes(stack_t **, unsigned int);
+void mod_nodes(stack_t **, unsigned int);
+
+
+#endif
